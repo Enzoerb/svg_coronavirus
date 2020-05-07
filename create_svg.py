@@ -1,4 +1,5 @@
 import os
+import sys
 import csv
 from datetime import datetime, timedelta
 from math import floor
@@ -167,24 +168,22 @@ class CreateSVG:
 
 if __name__ == '__main__':
 
-    all_locations = {'world', 'brazil', 'india', 'italy', 'spain', 'us'}
-
-    file_path = os.path.dirname(os.path.realpath(__file__))
-    csv_dir = 'csv_data'
-    local_path = os.getcwd()
-    svg_dir = 'svg_countries_final'
-    if not os.path.exists(os.path.join(local_path, svg_dir)):
-        os.mkdir(os.path.join(local_path, svg_dir))
-
-    for location in all_locations:
-        csv_file = f'corona_{location}.csv'
-        csv_path = os.path.join(file_path, csv_dir, csv_file)
-        svg_file = f'corona_{location}.svg'
-        svg_path = os.path.join(local_path, svg_dir, svg_file)
-
-        svg_creator = CreateSVG()
-        svg_creator.extract_csv(csv_path)
-        svg_creator.generate_legends()
-        svg_creator.generate_paths()
-        svg_creator.generate_scale()
-        svg_creator.create_svg(svg_path)
+    if len(sys.argv) == 3:
+        csv_path = sys.argv[1]
+        svg_path = sys.argv[2]
+        check = True
+        if not os.path.exists(csv_path):
+            print('csv path does not exist')
+            check = False
+        if not os.path.exists(os.path.dirname(svg_path)):
+            print('svg dir path does not exist')
+            check = False
+        if check:
+            svg_creator = CreateSVG()
+            svg_creator.extract_csv(csv_path)
+            svg_creator.generate_legends()
+            svg_creator.generate_paths()
+            svg_creator.generate_scale()
+            svg_creator.create_svg(svg_path)
+    else:
+        print('you need to give the csv and svg paths as arguments')
