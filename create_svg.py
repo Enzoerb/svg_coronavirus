@@ -44,26 +44,32 @@ class CreateSVG:
                     self.data.append(day)
 
     def get_first_day(self):
-        return datetime.strptime(self.data[0][0], '%Y/%m/%d %H:%M')
+        first_day = datetime.strptime(self.data[0][0], '%Y/%m/%d %H:%M')
+        return first_day
 
     def get_last_day(self):
-        return datetime.strptime(self.data[-1][0], '%Y/%m/%d %H:%M')
+        last_day = datetime.strptime(self.data[-1][0], '%Y/%m/%d %H:%M')
+        return last_day
 
     @staticmethod
     def legend_rect(color, y, stroke):
-        return f'<rect  fill="{color}" x="92%" y="{y}" width="7.5%" height="6%" stroke="{stroke}" stroke-width="0.2%"/>'
+        rect_element = f'<rect  fill="{color}" x="92%" y="{y}" width="7.5%" height="6%" stroke="{stroke}" stroke-width="0.2%"/>'
+        return rect_element
 
     @staticmethod
     def legend_text(text, y):
-        return f'<text  text-anchor="middle" x="95.5%" y="{y}" font-size="15">{text}</text>'
+        text_element = f'<text  text-anchor="middle" x="95.5%" y="{y}" font-size="15">{text}</text>'
+        return text_element
 
     @staticmethod
     def path_format(color, draw):
-        return f'<path fill="none" stroke="{color}" stroke-width="0.2%" d="{draw}"/>'
+        path_element = f'<path fill="none" stroke="{color}" stroke-width="0.2%" d="{draw}"/>'
+        return path_element
 
     @staticmethod
-    def scale_format(x, y, num):
-        return f'<text x="{x}" y="{y}" font-size="15">{num}</text>'
+    def scale_format(x, y, number):
+        scale_number_text = f'<text x="{x}" y="{y}" font-size="15">{number}</text>'
+        return scale_number_text
 
     def generate_legends(self):
         self.cases_legend["rect"] = self.legend_rect('yellow', '1%', 'black')
@@ -78,18 +84,21 @@ class CreateSVG:
     def set_days_adjuster(self):
         first_day = self.get_first_day()
         last_day = self.get_last_day()
+        number_of_pixels = self.end[0] - self.origin[0]
         seconds = (last_day - first_day).total_seconds()
-        self.days_adjuster = (self.end[0] - self.origin[0]) / int(seconds)
+        self.days_adjuster = number_of_pixels / int(seconds)
 
     def set_people_adjuster(self):
         cases = self.data[-1][2]
-        self.people_adjuster = (self.origin[1] - self.end[1]) / int(cases)
+        number_of_pixels = self.origin[1] - self.end[1]
+        self.people_adjuster = number_of_pixels / int(cases)
 
     def set_x_scale(self):
         day_final = self.get_last_day()
         day_one = self.get_first_day()
+        num_seconds = (day_final - day_one).total_seconds()
         seconds_in_day = 60*60*24
-        num_days = int((day_final - day_one).total_seconds() / seconds_in_day)
+        num_days = int(num_seconds / seconds_in_day)
         self.x_scale.append(day_final)
         self.x_scale.append(day_one)
         for day in range(num_days):
@@ -97,35 +106,46 @@ class CreateSVG:
             if int(new_day.strftime('%d')) % 5 == 0:
                 self.x_scale.append(new_day)
         for index, day in enumerate(self.x_scale):
+            seconds_till_day = (day - day_one).total_seconds()
+            day_graph_location = seconds_till_day*self.days_adjuster
             self.x_scale[index] = (self.origin[0] +
-                                   (day - day_one).total_seconds()*self.days_adjuster,
+                                   day_graph_location,
                                    day.strftime('%m/%d'))
 
     def set_y_scale(self):
         people_final = int(self.data[-1][2])
         people_one = min([int(self.data[0][i]) for i in range(2, 5)])
         people_mid = (people_final + people_one)/2
+        people_mid_high = (people_final + people_mid)/2
+        people_mid_low = (people_mid + people_one)/2
         self.y_scale.append(people_final)
         self.y_scale.append(people_one)
         self.y_scale.append(people_mid)
-        self.y_scale.append((people_final + people_mid)/2)
-        self.y_scale.append((people_mid + people_one)/2)
+        self.y_scale.append(people_mid_high)
+        self.y_scale.append(people_mid_low)
 
-        for index, num in enumerate(self.y_scale):
-            size = (len(str(int(num))) - 2)
-            pot = 10**size
-            formated_num = (num//pot)
-            self.y_scale[index] = (self.origin[1] - pot*formated_num *
-                                   self.people_adjuster,
-                                   str(int(formated_num))+f'*10^{size}')
+        for index, people_number in enumerate(self.y_scale):
+            size_number = len(str(int(people_number)))
+            size_potence = size_number - 2
+            ten_potence = 10**(size_potence)
+            formated_people_number = (people_number//ten_potence)
+            ronded_people_number = ten_potence*formated_people_number
+            poeple_graph_location = ronded_people_number*self.people_adjuster
+
+            self.y_scale[index] = (self.origin[1] - poeple_graph_location,
+                                   f'{formated_people_number}*10^{size_potence}')
 
     def generate_scale(self):
         self.set_x_scale()
         self.set_y_scale()
-        for scale, num in self.x_scale:
-            self.scale.append(self.scale_format(scale, 498, num))
-        for scale, num in self.y_scale:
-            self.scale.append(self.scale_format(30, scale, num))
+
+        for x_location, date in self.x_scale:
+            y_location = 498
+            self.scale.append(self.scale_format(x_location, y_location, date))
+
+        for y_location, people_number in self.y_scale:
+            x_location = 30
+            self.scale.append(self.scale_format(x_location, y_location, people_number))
 
     def draw_path(self, state):
         self.set_days_adjuster()
