@@ -53,12 +53,12 @@ class CreateSVG:
 
     @staticmethod
     def legend_rect(color, y, stroke):
-        rect_element = f'<rect  fill="{color}" x="92%" y="{y}" width="7.5%" height="6%" stroke="{stroke}" stroke-width="0.2%"/>'
+        rect_element = f'<rect  fill="{color}" x="92.3%" y="{y}" width="7.5%" height="6%" stroke="{stroke}" stroke-width="0.2%"/>'
         return rect_element
 
     @staticmethod
     def legend_text(text, y):
-        text_element = f'<text  text-anchor="middle" x="95.5%" y="{y}" font-size="15">{text}</text>'
+        text_element = f'<text  text-anchor="middle" x="96%" y="{y}" font-size="15">{text}</text>'
         return text_element
 
     @staticmethod
@@ -72,14 +72,14 @@ class CreateSVG:
         return scale_number_text
 
     def generate_legends(self):
-        self.cases_legend["rect"] = self.legend_rect('yellow', '1%', 'black')
-        self.cases_legend["text"] = self.legend_text('Cases', '5%')
+        self.cases_legend["rect"] = self.legend_rect('yellow', '0.5%', 'black')
+        self.cases_legend["text"] = self.legend_text('Cases', '4.5%')
 
-        self.death_legend["rect"] = self.legend_rect('red', '8%', 'black')
-        self.death_legend["text"] = self.legend_text('Deaths', '12%')
+        self.death_legend["rect"] = self.legend_rect('red', '7.5%', 'black')
+        self.death_legend["text"] = self.legend_text('Deaths', '11.5%')
 
-        self.recoveries_legend["rect"] = self.legend_rect('green', '15%', 'black')
-        self.recoveries_legend["text"] = self.legend_text('Recoveries', '19%')
+        self.recoveries_legend["rect"] = self.legend_rect('green', '14.5%', 'black')
+        self.recoveries_legend["text"] = self.legend_text('Recoveries', '18.5%')
 
     def set_days_adjuster(self):
         first_day = self.get_first_day()
