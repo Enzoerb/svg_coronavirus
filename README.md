@@ -10,6 +10,7 @@ in terminal run create_svg.py script giving the csv and svg paths as arguments.
 You can give the location name as a third argument if you want(it will be in the graph legend)
 
 ex: python3 create_svg.py /home/usr/the/csv/path.csv /home/usr/the/svg/path.svg
+
 ex2: python3 create_svg.py /home/usr/the/csv/path.csv /home/usr/the/svg/path.svg Location_Here
 
 obs: the entire csv path must exist and the svg dir too (in the exemples /home/usr/the/csv/path.csv and /home/usr/the/svg must exist)
