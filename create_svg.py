@@ -6,6 +6,7 @@ from math import floor
 
 axes = '''
     <rect  fill="white" x="0%" y="0%" width="100%" height="100%"/>
+    <text text-anchor="middle" x="50%" y="2.5%" font-size="15">COVID-19</text>
 
     <line x1="2%" y1="97%" x2="2%" y2="5%" stroke="black" stroke-width="0.5%" />
     <polygon points="13,30 27,30 20,15" fill="black" stroke="black" />
@@ -19,8 +20,9 @@ axes = '''
 
 class CreateSVG:
 
-    def __init__(self):
+    def __init__(self, country=''):
         self.axes = axes
+        self.country = country
         self.data = list()
         self.x_scale = list()
         self.y_scale = list()
@@ -35,6 +37,11 @@ class CreateSVG:
         self.end = (920, 25)
         self.people_adjuster = 1
         self.days_adjuster = 1
+
+    @property
+    def country_text(self):
+        text = f'<text text-anchor="middle" x="50%" y="5.5%" font-size="15">{self.country}</text>'
+        return text
 
     def extract_csv(self, file_path):
         with open(file_path) as csv_file:
@@ -169,7 +176,8 @@ class CreateSVG:
         self.recoveries_path = self.path_format('green', self.draw_path(4))
 
     def create_svg(self, file_path):
-        svg_content = [self.cases_legend['rect'], self.cases_legend['text'],
+        svg_content = [self.country_text,
+                       self.cases_legend['rect'], self.cases_legend['text'],
                        self.death_legend['rect'], self.death_legend['text'],
                        self.recoveries_legend['rect'], self.recoveries_legend['text'],
                        self.cases_path, self.death_path, self.recoveries_path]
@@ -188,7 +196,11 @@ class CreateSVG:
 
 if __name__ == '__main__':
 
-    if len(sys.argv) == 3:
+    country = ''
+    if len(sys.argv) == 4:
+        country = sys.argv[3]
+
+    if len(sys.argv) > 2:
         csv_path = sys.argv[1]
         svg_path = sys.argv[2]
         check = True
@@ -199,7 +211,7 @@ if __name__ == '__main__':
             print('svg dir path does not exist')
             check = False
         if check:
-            svg_creator = CreateSVG()
+            svg_creator = CreateSVG(country)
             svg_creator.extract_csv(csv_path)
             svg_creator.generate_legends()
             svg_creator.generate_paths()
